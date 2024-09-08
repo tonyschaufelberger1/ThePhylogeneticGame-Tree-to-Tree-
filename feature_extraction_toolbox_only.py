@@ -15,7 +15,7 @@ FTB = FeatureExtractorFeatureToolBoxClass(current_tree=input_tree, prune_tree=No
                                                                       resulting_tree=None,
                                                                       split_hash_dict={})
 
-print(FTB.features_bl_dana(which_tree='current_tree'))
+print(FTB.feature_topo_dist_from_pruned(which_tree='current_tree'))
 tree_results = {name: 0 for name in FTB.tree_mappings['current_tree'].keys() if name.find('ll') == -1}
-# print(tree_results)
+print(tree_results)
 

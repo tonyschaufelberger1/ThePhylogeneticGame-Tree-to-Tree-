@@ -48,8 +48,8 @@ class FeatureExtractorClass:
             results[SC.TARGET_LABEL_COLUMN] = ((results['resulting_ll'][0] - results['current_ll'][0]) / normalization_factor) * SC.LABEL_MULTIPLIER
             assert results['current_ll'][0] < 0, results['current_ll'][0]  # the normalization above is dependent on the fact
             # that the current is always negative
-        else:
-            results['total_branch_length_nj_tree'] = SC.NJ_TBL_FOR_DATASET_DICT[data_set_number]
+        # else:
+        #     results['total_branch_length_nj_tree'] = SC.NJ_TBL_FOR_DATASET_DICT[data_set_number]
 
 
         if result_format == 'episode_logger':

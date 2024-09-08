@@ -28,38 +28,40 @@ class FeatureExtractorFeatureToolBoxClass:
         # function mappings
 
         self.tree_mappings = {
-            'current_tree': {'total_branch_length_current_tree': self.feature_tbl,
-                             'longest_branch_current_tree': self.feature_longest_branch,
-                             'branch_length_prune': self.feature_branch_length_prune,
-                             'branch_length_rgft': self.feature_branch_length_rgft,
+            'current_tree': {
+                # 'total_branch_length_current_tree': self.feature_tbl,
+                             # 'longest_branch_current_tree': self.feature_longest_branch,
+                             # 'branch_length_prune': self.feature_branch_length_prune,
+                             # 'branch_length_rgft': self.feature_branch_length_rgft,
                              'topo_dist_from_pruned': self.feature_topo_dist_from_pruned,
-                             'branch_dist_from_pruned': self.feature_branch_dist_from_pruned,
-                             'bstrap_nj_prune_current_tree': self.features_bootstrap_nj_prune,
-                             'bstrap_nj_rgft_current_tree': self.features_bootstrap_nj_rgft,
-                             'bstrap_upgma_prune_current_tree': self.features_bootstrap_upgma_prune,
-                             'bstrap_upgma_rgft_current_tree': self.features_bootstrap_upgma_rgft,
+                             # 'branch_dist_from_pruned': self.feature_branch_dist_from_pruned,
+                             # 'bstrap_nj_prune_current_tree': self.features_bootstrap_nj_prune,
+                             # 'bstrap_nj_rgft_current_tree': self.features_bootstrap_nj_rgft,
+                             # 'bstrap_upgma_prune_current_tree': self.features_bootstrap_upgma_prune,
+                             # 'bstrap_upgma_rgft_current_tree': self.features_bootstrap_upgma_rgft,
                              'current_ll': self.feature_likelihood
                              },
             'b_subtree': {'number_of_species_b_subtree': self.feature_number_of_species,
-                          'total_branch_length_b_subtree': self.feature_tbl,
-                          'longest_branch_b_subtree': self.feature_longest_branch,
+                          # 'total_branch_length_b_subtree': self.feature_tbl,
+                          # 'longest_branch_b_subtree': self.feature_longest_branch,
                           },
             'c_subtree': {'number_of_species_c_subtree': self.feature_number_of_species,
-                          'total_branch_length_c_subtree': self.feature_tbl,
-                          'longest_branch_c_subtree': self.feature_longest_branch,
+                          # 'total_branch_length_c_subtree': self.feature_tbl,
+                          # 'longest_branch_c_subtree': self.feature_longest_branch,
                           },
             'prune_tree': {'number_of_species_prune': self.feature_number_of_species,
-                           'total_branch_length_prune': self.feature_tbl,
-                           'longest_branch_prune': self.feature_longest_branch,
+                           # 'total_branch_length_prune': self.feature_tbl,
+                           # 'longest_branch_prune': self.feature_longest_branch,
                            },
             'remaining_tree': {'number_of_species_remaining': self.feature_number_of_species,
-                               'total_branch_length_remaining': self.feature_tbl,
-                               'longest_branch_remaining': self.feature_longest_branch,
+                               # 'total_branch_length_remaining': self.feature_tbl,
+                               # 'longest_branch_remaining': self.feature_longest_branch,
                                },
-            'resulting_tree': {'bstrap_nj_prune_resulting': self.features_bootstrap_nj_prune,
-                               'bstrap_nj_rgft_resulting': self.features_bootstrap_nj_rgft,
-                               'bstrap_upgma_prune_resulting': self.features_bootstrap_upgma_prune,
-                               'bstrap_upgma_rgft_resulting': self.features_bootstrap_upgma_rgft,
+            'resulting_tree': {
+                # 'bstrap_nj_prune_resulting': self.features_bootstrap_nj_prune,
+                #                'bstrap_nj_rgft_resulting': self.features_bootstrap_nj_rgft,
+                #                'bstrap_upgma_prune_resulting': self.features_bootstrap_upgma_prune,
+                #                'bstrap_upgma_rgft_resulting': self.features_bootstrap_upgma_rgft,
                                'resulting_ll': self.feature_likelihood
                                    }
             }
@@ -107,31 +109,31 @@ class FeatureExtractorFeatureToolBoxClass:
         tbl_between = prune_node.get_distance(rgft_node, topology_only=False)
         return {'nleaves_between': nleaves_between, 'tbl_between': tbl_between}
 
-    def feature_tbl(self, **kwargs):
-        if self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] is None:
-            is_prune_tree = True if kwargs['which_tree'] == 'prune_tree' else False
-            branches = self.__get_branch_lengths(tree=self.trees[kwargs['which_tree']], is_prune_tree=is_prune_tree)
-            self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] = branches
-            return sum(branches)
-        else:
-            return sum(self.tree_helper_params[kwargs['which_tree']]['branch_lengths'])
+    # def feature_tbl(self, **kwargs):
+    #     if self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] is None:
+    #         is_prune_tree = True if kwargs['which_tree'] == 'prune_tree' else False
+    #         branches = self.__get_branch_lengths(tree=self.trees[kwargs['which_tree']], is_prune_tree=is_prune_tree)
+    #         self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] = branches
+    #         return sum(branches)
+    #     else:
+    #         return sum(self.tree_helper_params[kwargs['which_tree']]['branch_lengths'])
 
-    def feature_longest_branch(self, **kwargs):
-        if self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] is None:
-            is_prune_tree = True if kwargs['which_tree'] == 'prune_tree' else False
-            branches = self.__get_branch_lengths(tree=self.trees[kwargs['which_tree']], is_prune_tree=is_prune_tree)
-            self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] = branches
-            return max(branches)
-        else:
-            return max(self.tree_helper_params[kwargs['which_tree']]['branch_lengths'])
+    # def feature_longest_branch(self, **kwargs):
+    #     if self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] is None:
+    #         is_prune_tree = True if kwargs['which_tree'] == 'prune_tree' else False
+    #         branches = self.__get_branch_lengths(tree=self.trees[kwargs['which_tree']], is_prune_tree=is_prune_tree)
+    #         self.tree_helper_params[kwargs['which_tree']]['branch_lengths'] = branches
+    #         return max(branches)
+    #     else:
+    #         return max(self.tree_helper_params[kwargs['which_tree']]['branch_lengths'])
 
-    def feature_branch_length_prune(self, **kwargs):
-        node = (self.trees['current_tree'] & kwargs['prune_edge'].node_a)
-        return node.dist
+    # def feature_branch_length_prune(self, **kwargs):
+    #     node = (self.trees['current_tree'] & kwargs['prune_edge'].node_a)
+    #     return node.dist
 
-    def feature_branch_length_rgft(self, **kwargs):
-        node = (self.trees[kwargs['which_tree']] & kwargs['rgft_edge'].node_a)
-        return node.dist
+    # def feature_branch_length_rgft(self, **kwargs):
+    #     node = (self.trees[kwargs['which_tree']] & kwargs['rgft_edge'].node_a)
+    #     return node.dist
 
     def feature_topo_dist_from_pruned(self, **kwargs):
         prunde_node = self.trees[kwargs['which_tree']] & kwargs['prune_edge'].node_a
@@ -144,16 +146,16 @@ class FeatureExtractorFeatureToolBoxClass:
         else:
             return self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned']['nleaves_between']
 
-    def feature_branch_dist_from_pruned(self, **kwargs):
-        prune_node = self.trees[kwargs['which_tree']] & kwargs['prune_edge'].node_a
-        rgft_node = self.trees[kwargs['which_tree']] & kwargs['rgft_edge'].node_a
-        if self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned'] is None:
-            results = self.__dist_between_nodes(tree=self.trees[kwargs['which_tree']], prune_node=prune_node,
-                                                rgft_node=rgft_node)
-            self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned'] = results
-            return results['tbl_between']
-        else:
-            return self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned']['tbl_between']
+    # def feature_branch_dist_from_pruned(self, **kwargs):
+    #     prune_node = self.trees[kwargs['which_tree']] & kwargs['prune_edge'].node_a
+    #     rgft_node = self.trees[kwargs['which_tree']] & kwargs['rgft_edge'].node_a
+    #     if self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned'] is None:
+    #         results = self.__dist_between_nodes(tree=self.trees[kwargs['which_tree']], prune_node=prune_node,
+    #                                             rgft_node=rgft_node)
+    #         self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned'] = results
+    #         return results['tbl_between']
+    #     else:
+    #         return self.tree_helper_params[kwargs['which_tree']]['distance_from_pruned']['tbl_between']
 
     def feature_number_of_species(self, **kwargs):
         tree = self.trees['current_tree'].get_tree_root()
@@ -167,72 +169,72 @@ class FeatureExtractorFeatureToolBoxClass:
         else:
             return self.tree_helper_params[kwargs['which_tree']]['ntaxa_prune']
 
-    def features_bootstrap_nj_prune(self, **kwargs):
-        branch_name = kwargs['prune_edge'].node_a
-        if kwargs['which_tree'] == 'resulting_tree':
-            one_up_name = kwargs['prune_edge'].node_b
-            starting_tree = self.trees['current_tree']
-            # if regular case we want to locate the up_node name of the original tree in the resulting tree.
-            # if not regular case (namely a child of the ROOT):
-            # (1) if branch leads to leaf- ROOT. OR (2) branch leads to full clades- one_up_name
-            branch_name = ((starting_tree & one_up_name).up).name if not one_up_name == "ROOT" else "ROOT" if "Sp" in kwargs['prune_edge'].node_a else one_up_name
-        return self.features_bootstrap(which_tree=kwargs['which_tree'],
-                                       bstrap_algo='nj', branch_name=branch_name)
+    # def features_bootstrap_nj_prune(self, **kwargs):
+    #     branch_name = kwargs['prune_edge'].node_a
+    #     if kwargs['which_tree'] == 'resulting_tree':
+    #         one_up_name = kwargs['prune_edge'].node_b
+    #         starting_tree = self.trees['current_tree']
+    #         # if regular case we want to locate the up_node name of the original tree in the resulting tree.
+    #         # if not regular case (namely a child of the ROOT):
+    #         # (1) if branch leads to leaf- ROOT. OR (2) branch leads to full clades- one_up_name
+    #         branch_name = ((starting_tree & one_up_name).up).name if not one_up_name == "ROOT" else "ROOT" if "Sp" in kwargs['prune_edge'].node_a else one_up_name
+    #     return self.features_bootstrap(which_tree=kwargs['which_tree'],
+    #                                    bstrap_algo='nj', branch_name=branch_name)
 
-    def features_bootstrap_nj_rgft(self, **kwargs):
-        branch_name = kwargs['rgft_edge'].node_a if kwargs['which_tree'] != 'resulting_tree' else kwargs['prune_edge'].node_b
-        return self.features_bootstrap(which_tree=kwargs['which_tree'],
-                                       bstrap_algo='nj', branch_name=branch_name)
+    # def features_bootstrap_nj_rgft(self, **kwargs):
+    #     branch_name = kwargs['rgft_edge'].node_a if kwargs['which_tree'] != 'resulting_tree' else kwargs['prune_edge'].node_b
+    #     return self.features_bootstrap(which_tree=kwargs['which_tree'],
+    #                                    bstrap_algo='nj', branch_name=branch_name)
 
-    def features_bootstrap_upgma_prune(self, **kwargs):
-        branch_name = kwargs['prune_edge'].node_a
-        if kwargs['which_tree'] == 'resulting_tree':
-            one_up_name = kwargs['prune_edge'].node_b
-            starting_tree = self.trees['current_tree']
-            # if regular case we want to locate the up_node name of the original tree in the resulting tree.
-            # if not regular case (namely a child of the ROOT):
-            # (1) if branch leads to leaf- ROOT. OR (2) branch leads to full clades- one_up_name
-            branch_name = ((starting_tree & one_up_name).up).name if not one_up_name == "ROOT" else "ROOT" if "Sp" in kwargs['prune_edge'].node_a else one_up_name
-        return self.features_bootstrap(which_tree=kwargs['which_tree'],
-                                       bstrap_algo='upgma', branch_name=branch_name)
+    # def features_bootstrap_upgma_prune(self, **kwargs):
+    #     branch_name = kwargs['prune_edge'].node_a
+    #     if kwargs['which_tree'] == 'resulting_tree':
+    #         one_up_name = kwargs['prune_edge'].node_b
+    #         starting_tree = self.trees['current_tree']
+    #         # if regular case we want to locate the up_node name of the original tree in the resulting tree.
+    #         # if not regular case (namely a child of the ROOT):
+    #         # (1) if branch leads to leaf- ROOT. OR (2) branch leads to full clades- one_up_name
+    #         branch_name = ((starting_tree & one_up_name).up).name if not one_up_name == "ROOT" else "ROOT" if "Sp" in kwargs['prune_edge'].node_a else one_up_name
+    #     return self.features_bootstrap(which_tree=kwargs['which_tree'],
+    #                                    bstrap_algo='upgma', branch_name=branch_name)
 
-    def features_bootstrap_upgma_rgft(self, **kwargs):
-        branch_name = kwargs['rgft_edge'].node_a if kwargs['which_tree'] != 'resulting_tree' else kwargs['prune_edge'].node_b
-        return self.features_bootstrap(which_tree=kwargs['which_tree'],
-                                       bstrap_algo='upgma', branch_name=branch_name)
+    # def features_bootstrap_upgma_rgft(self, **kwargs):
+    #     branch_name = kwargs['rgft_edge'].node_a if kwargs['which_tree'] != 'resulting_tree' else kwargs['prune_edge'].node_b
+    #     return self.features_bootstrap(which_tree=kwargs['which_tree'],
+    #                                    bstrap_algo='upgma', branch_name=branch_name)
 
-    def features_bootstrap(self, which_tree, bstrap_algo, branch_name):
-        """
-        bootstrap feature assignes a bootstrap value to a given edge in the tree.
-        in order to have these values we create a hashing dictionary of all optional splits in species group.
-        this data is saved to a hash table using the min group of each split  in lexicographic order
-        example: 123|4567 will be saved as 123.
-        if the hashing doesn't already exist we create it.
-        """
-        tree = self.trees[which_tree].get_tree_root()
-        if self.tree_helper_params['shared']['SplitsHash'][bstrap_algo] is None:
-            # create hash dict
-            splits_btsrap_hash_file_path = SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / "SplitsHash_{}.pkl".format(bstrap_algo)
-            if os.path.exists(splits_btsrap_hash_file_path):
-                with open(splits_btsrap_hash_file_path, "rb") as dict_file:
-                    splitsHash = pickle.load(dict_file)
-                    dict_file.close()
-            else:
-                btsrp_newicks_lst = FGT.generate_bootstrap_trees(data_set_number=self.data_set_number, algo=bstrap_algo, nbootrees=SC.NBOOTREES)
-                species_lst = FGT.msa_to_species_lst(data_set_number=self.data_set_number)
-                splitsHash = {}
-                splitsHash = FGT.update_splitsHash(original_splitsHash=splitsHash, btsrp_newicks_lst=btsrp_newicks_lst, species_lst=species_lst)
-                with open(splits_btsrap_hash_file_path, "wb") as dict_file:
-                    pickle.dump(splitsHash, dict_file)
-                    dict_file.close()
-            self.tree_helper_params['shared']['SplitsHash'][bstrap_algo] = splitsHash
-        else:
-            splitsHash = self.tree_helper_params['shared']['SplitsHash'][bstrap_algo]
-        try:
-            bstrap_val = FGT.split_lookup(splitsHash=splitsHash, anyNode=(tree&branch_name), data_set_number=self.data_set_number)
-        except:
-            bstrap_val = 0
-        return bstrap_val
+    # def features_bootstrap(self, which_tree, bstrap_algo, branch_name):
+    #     """
+    #     bootstrap feature assignes a bootstrap value to a given edge in the tree.
+    #     in order to have these values we create a hashing dictionary of all optional splits in species group.
+    #     this data is saved to a hash table using the min group of each split  in lexicographic order
+    #     example: 123|4567 will be saved as 123.
+    #     if the hashing doesn't already exist we create it.
+    #     """
+    #     tree = self.trees[which_tree].get_tree_root()
+    #     if self.tree_helper_params['shared']['SplitsHash'][bstrap_algo] is None:
+    #         # create hash dict
+    #         splits_btsrap_hash_file_path = SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / "SplitsHash_{}.pkl".format(bstrap_algo)
+    #         if os.path.exists(splits_btsrap_hash_file_path):
+    #             with open(splits_btsrap_hash_file_path, "rb") as dict_file:
+    #                 splitsHash = pickle.load(dict_file)
+    #                 dict_file.close()
+    #         else:
+    #             btsrp_newicks_lst = FGT.generate_bootstrap_trees(data_set_number=self.data_set_number, algo=bstrap_algo, nbootrees=SC.NBOOTREES)
+    #             species_lst = FGT.msa_to_species_lst(data_set_number=self.data_set_number)
+    #             splitsHash = {}
+    #             splitsHash = FGT.update_splitsHash(original_splitsHash=splitsHash, btsrp_newicks_lst=btsrp_newicks_lst, species_lst=species_lst)
+    #             with open(splits_btsrap_hash_file_path, "wb") as dict_file:
+    #                 pickle.dump(splitsHash, dict_file)
+    #                 dict_file.close()
+    #         self.tree_helper_params['shared']['SplitsHash'][bstrap_algo] = splitsHash
+    #     else:
+    #         splitsHash = self.tree_helper_params['shared']['SplitsHash'][bstrap_algo]
+    #     try:
+    #         bstrap_val = FGT.split_lookup(splitsHash=splitsHash, anyNode=(tree&branch_name), data_set_number=self.data_set_number)
+    #     except:
+    #         bstrap_val = 0
+    #     return bstrap_val
 
     def feature_likelihood(self, **kwargs):
         msa_file_path = str(SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / SC.MSA_FILE_NAME)
@@ -246,32 +248,32 @@ class FeatureExtractorFeatureToolBoxClass:
         freq, rates, pinv, alpha = FGT.get_likelihood_params(stat_path)
         return FGT.calc_likelihood(self.trees[kwargs['which_tree']].write(format=1, format_root_node=True), msa_file_path, rates, pinv, alpha, freq)
 
-    def features_bl_dana(self, **kwargs):
-        if self.tree_helper_params[kwargs['which_tree']]['BL_Dana'] is None:
-            bl_dana = self.calc_bl_dana(self.trees[kwargs['which_tree']])
-            self.tree_helper_params[kwargs['which_tree']]['BL_Dana'] = bl_dana
-            return bl_dana
-        else:
-            return self.tree_helper_params[kwargs['which_tree']]['BL_Dana']
+    # def features_bl_dana(self, **kwargs):
+    #     if self.tree_helper_params[kwargs['which_tree']]['BL_Dana'] is None:
+    #         bl_dana = self.calc_bl_dana(self.trees[kwargs['which_tree']])
+    #         self.tree_helper_params[kwargs['which_tree']]['BL_Dana'] = bl_dana
+    #         return bl_dana
+    #     else:
+    #         return self.tree_helper_params[kwargs['which_tree']]['BL_Dana']
 
-    def calc_bl_dana(self, tree):
-        branches = self.get_branch_lengths_dana(tree)
-        if not branches:
-            return 0,0,0,0,0
-        entropy = self.compute_entropy_dana(branches)
-        return max(branches), min(branches), np.mean(branches), np.std(branches), entropy
+    # def calc_bl_dana(self, tree):
+    #     branches = self.get_branch_lengths_dana(tree)
+    #     if not branches:
+    #         return 0,0,0,0,0
+    #     entropy = self.compute_entropy_dana(branches)
+    #     return max(branches), min(branches), np.mean(branches), np.std(branches), entropy
 
-    def get_branch_lengths_dana(self, tree):
-        """
-        :param tree: Tree node or tree file or newick tree string;
-        :return: total branch lengths
-        """
-        # TBL
-        tree_root = tree.get_tree_root()
-        branches = []
-        for node in tree_root.iter_descendants():  # the root dist is 1.0, we don't want it
-            branches.append(node.dist)
-        return branches
+    # def get_branch_lengths_dana(self, tree):
+    #     """
+    #     :param tree: Tree node or tree file or newick tree string;
+    #     :return: total branch lengths
+    #     """
+    #     # TBL
+    #     tree_root = tree.get_tree_root()
+    #     branches = []
+    #     for node in tree_root.iter_descendants():  # the root dist is 1.0, we don't want it
+    #         branches.append(node.dist)
+    #     return branches
 
     def compute_entropy_dana(self, lst, epsilon=0.000001):
         if np.sum(lst) != 0:
