@@ -87,7 +87,7 @@ class FeatureExtractorClass:
             tree_results.update({name: func(which_tree=which_tree, prune_edge=prune_edge, rgft_edge=rgft_edge)})
         return tree_results
 
-    def extract_features(self, current_tree_obj, move, data_set_number=None, should_transform_results=True, queue=None,
+    def extract_features(self, current_tree_obj, target_tree_obj, move, data_set_number=None, should_transform_results=True, queue=None,
                          calculation_flag='all', result_format='dict', return_tree_string=False, normalization_factor=1,
                          split_hash_dict=None):
         """
@@ -113,6 +113,7 @@ class FeatureExtractorClass:
         prune_edge, rgft_edge = move
 
         self.FTB = FeatureToolBox.FeatureExtractorFeatureToolBoxClass(current_tree=current_tree_obj,
+                                                                      target_tree=target_tree_obj,
                                                                       prune_tree=prune_subtree,
                                                                       remaining_tree=remaining_tree,
                                                                       b_subtree=b_subtree,
@@ -148,7 +149,7 @@ class FeatureExtractorClass:
         else:
             queue.put(results)
 
-    def extract_likelihood(self, current_tree_obj, data_set_number, queue=None, previous_ll=None, normalization_factor=1):
+    def extract_likelihood(self, current_tree_obj, target_tree_obj, data_set_number, queue=None, previous_ll=None, normalization_factor=1):
         """
         this function is used to calculate the likelihood of ONE specific tree, not to be confused with the use of
         extract_features with the 'll' flag which is used to get only the ll of a tree, make a spr move and get the ll
@@ -160,7 +161,7 @@ class FeatureExtractorClass:
         be normalized so because this process happens here, we pass the previous ll
         :return: ll
         """
-        self.FTB = FeatureToolBox.FeatureExtractorFeatureToolBoxClass(current_tree=current_tree_obj, prune_tree=None,
+        self.FTB = FeatureToolBox.FeatureExtractorFeatureToolBoxClass(current_tree=current_tree_obj, target_tree=target_tree_obj, prune_tree=None,
                                                                       remaining_tree=None, b_subtree=None,
                                                                       c_subtree=None, data_set_number=data_set_number,
                                                                       resulting_tree=None,

@@ -2,4 +2,15 @@
   return torch._C._cuda_getDeviceCount() > 0
 train datasets: []
 test datasets: []
-No weights found at all.  created Net from scratch according to QNet param consts
+Traceback (most recent call last):
+  File "/home/tony/Documents/Uni/Compsci380/ThePhylogeneticGame/ProjectMain.py", line 12, in <module>
+    DqnAgentRunner.run_dqn_agent_experiment(**vars(args))
+  File "/home/tony/Documents/Uni/Compsci380/ThePhylogeneticGame/DqnAgentExperimentRunner.py", line 12, in run_dqn_agent_experiment
+    agent, result_dir = set_up_dqn_agent(kwargs['cpus'], kwargs['experiment_unique_dir_name'])
+  File "/home/tony/Documents/Uni/Compsci380/ThePhylogeneticGame/DqnAgentExperimentRunner.py", line 34, in set_up_dqn_agent
+    env = PhyloGame(datasets=train_datasets, number_of_cpus_to_use=number_of_cpus,
+  File "/home/tony/Documents/Uni/Compsci380/ThePhylogeneticGame/Reinforcement_env/env.py", line 32, in __init__
+    self.reset()
+  File "/home/tony/Documents/Uni/Compsci380/ThePhylogeneticGame/Reinforcement_env/env.py", line 49, in reset
+    self.likelihood = self.fe.extract_likelihood(self.tree, self.helper.data_set)['resulting_ll'][0]
+TypeError: extract_likelihood() missing 1 required positional argument: 'data_set_number'

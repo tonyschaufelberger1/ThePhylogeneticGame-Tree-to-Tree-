@@ -19,12 +19,12 @@ class FeatureExtractorFeatureToolBoxClass:
     is order insensitive - EXAMPLE: feature_topo_dist_from_pruned and feature_branch_dist_from_pruned
     all feature methods should start with feature prefix , all helper methods should be private
     """
-    def __init__(self, current_tree, prune_tree, remaining_tree, b_subtree, c_subtree, resulting_tree, data_set_number,
+    def __init__(self, current_tree, target_tree, prune_tree, remaining_tree, b_subtree, c_subtree, resulting_tree, data_set_number,
                  split_hash_dict):
         self.data_set_number = data_set_number
         # trees
         self.trees = {'current_tree': current_tree, 'prune_tree': prune_tree, 'remaining_tree': remaining_tree,
-                      'b_subtree': b_subtree, 'c_subtree': c_subtree, 'resulting_tree': resulting_tree}
+                      'b_subtree': b_subtree, 'c_subtree': c_subtree, 'resulting_tree': resulting_tree, 'target_tree': target_tree}
         # function mappings
 
         self.tree_mappings = {
@@ -34,6 +34,8 @@ class FeatureExtractorFeatureToolBoxClass:
                              # 'branch_length_prune': self.feature_branch_length_prune,
                              # 'branch_length_rgft': self.feature_branch_length_rgft,
                              'topo_dist_from_pruned': self.feature_topo_dist_from_pruned,
+                             'rf_dist': self.feature_rf_distance,
+                             # 'rf_dist_max': self.feature_rf_distance,
                              # 'branch_dist_from_pruned': self.feature_branch_dist_from_pruned,
                              # 'bstrap_nj_prune_current_tree': self.features_bootstrap_nj_prune,
                              # 'bstrap_nj_rgft_current_tree': self.features_bootstrap_nj_rgft,
@@ -42,18 +44,22 @@ class FeatureExtractorFeatureToolBoxClass:
                              'current_ll': self.feature_likelihood
                              },
             'b_subtree': {'number_of_species_b_subtree': self.feature_number_of_species,
+                             # 'rf_dist_b_subtree': self.feature_rf_distance,
                           # 'total_branch_length_b_subtree': self.feature_tbl,
                           # 'longest_branch_b_subtree': self.feature_longest_branch,
                           },
             'c_subtree': {'number_of_species_c_subtree': self.feature_number_of_species,
+                             # 'rf_dist_c_subtree': self.feature_rf_distance,
                           # 'total_branch_length_c_subtree': self.feature_tbl,
                           # 'longest_branch_c_subtree': self.feature_longest_branch,
                           },
             'prune_tree': {'number_of_species_prune': self.feature_number_of_species,
+                             # 'rf_dist_prune': self.feature_rf_distance,
                            # 'total_branch_length_prune': self.feature_tbl,
                            # 'longest_branch_prune': self.feature_longest_branch,
                            },
             'remaining_tree': {'number_of_species_remaining': self.feature_number_of_species,
+                             # 'rf_dist_remaining': self.feature_rf_distance,
                                # 'total_branch_length_remaining': self.feature_tbl,
                                # 'longest_branch_remaining': self.feature_longest_branch,
                                },
@@ -67,14 +73,26 @@ class FeatureExtractorFeatureToolBoxClass:
             }
         # params
         self.tree_helper_params = {
-            'current_tree': {'branch_lengths': None, 'distance_from_pruned': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None},
-            'prune_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None},
-            'remaining_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None},
-            'b_subtree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None},
-            'c_subtree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None},
+            'current_tree': {'branch_lengths': None, 'distance_from_pruned': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
+                             'rf_dist': None
+                             },
+            'prune_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
+                             # 'rf_dist': None
+                           },
+            'remaining_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
+                             # 'rf_dist': None
+                           },
+            'b_subtree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
+                             # 'rf_dist': None
+                           },
+            'c_subtree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
+                             # 'rf_dist': None
+                           },
             'resulting_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None,
                           'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None,
-                          'PBL_Dana': None},
+                          'PBL_Dana': None,
+                             # 'rf_dist': None
+                           },
 
             'shared': {'SplitsHash': {'nj': split_hash_dict.get('nj'), 'upgma': split_hash_dict.get('upgma')}}
         }
@@ -168,6 +186,19 @@ class FeatureExtractorFeatureToolBoxClass:
             return ntaxa_intersecting
         else:
             return self.tree_helper_params[kwargs['which_tree']]['ntaxa_prune']
+
+    def feature_rf_distance(self, **kwargs):
+        target_tree = self.trees['target_tree'].get_tree_root()
+        tree = self.trees['current_tree'].get_tree_root()
+        if self.tree_helper_params['current_tree']['rf_dist'] is None:
+            rf_distance = tree.robinson_foulds(target_tree, unrooted_trees=True)
+            normal = rf_distance[0]
+            # max_rf = rf_distance[1]
+            self.tree_helper_params['current_tree']['rf_dist'] = normal
+            # self.tree_helper_params['current_tree']['rf_dist_max'] = max_rf
+            return rf_distance[0]
+        else:
+            return self.tree_helper_params['current_tree']['rf_dist']
 
     # def features_bootstrap_nj_prune(self, **kwargs):
     #     branch_name = kwargs['prune_edge'].node_a

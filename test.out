@@ -1,0 +1,69 @@
+
+         /-Sp011
+        |
+      /-|      /-Sp015
+     |  |   /-|
+     |   \-|   \-Sp014
+   /-|     |
+  |  |      \-Sp004
+  |  |
+  |   \-Sp000
+  |
+  |      /-Sp018
+  |     |
+  |   /-|   /-Sp010
+  |  |  |  |
+  |  |   \-|      /-Sp017
+  |  |     |   /-|
+  |  |      \-|   \-Sp006
+  |  |        |
+  |--|         \-Sp003
+  |  |
+  |  |      /-Sp016
+--|  |   /-|
+  |  |  |  |   /-Sp012
+  |  |  |   \-|
+  |   \-|      \-Sp009
+  |     |
+  |     |   /-Sp019
+  |      \-|
+  |        |   /-Sp005
+  |         \-|
+  |           |   /-Sp013
+  |            \-|
+  |              |   /-Sp007
+  |               \-|
+  |                  \-Sp001
+  |
+  |   /-Sp008
+   \-|
+      \-Sp002
+
+      /-Sp011
+     |
+   /-|   /-Sp005
+  |  |  |
+  |   \-|      /-Sp007
+  |     |   /-|
+  |     |  |   \-Sp004
+  |      \-|
+  |        |      /-Sp006
+  |        |   /-|
+  |         \-|   \-Sp003
+--|           |
+  |            \-Sp000
+  |
+  |      /-Sp010
+  |   /-|
+  |--|   \-Sp008
+  |  |
+  |   \-Sp001
+  |
+  |   /-Sp009
+   \-|
+      \-Sp002
+[Tree node 'Sp011' (0x7f3e149ee3a), Tree node 'Sp001' (0x7f3e149ee64), Tree node 'Sp009' (0x7f3e149ee6a), Tree node 'Sp002' (0x7f3e149ee6d), Tree node 'Sp005' (0x7f3e149ee34), Tree node 'Sp010' (0x7f3e149ee5e), Tree node 'Sp008' (0x7f3e149ee61), Tree node 'Sp007' (0x7f3e149ee40), Tree node 'Sp004' (0x7f3e149ee43), Tree node 'Sp000' (0x7f3e149ee55), Tree node 'Sp006' (0x7f3e149ee4f), Tree node 'Sp003' (0x7f3e149ee52)]
+
+--ROOT
+[a=N3 b=N2] [a=Sp000 b=N4]
+{'topo_dist_from_pruned': 3.0, 'rf_dist': 16, 'number_of_species_prune': 2, 'number_of_species_remaining': 18, 'number_of_species_b_subtree': 1, 'number_of_species_c_subtree': 17, 'prune_branch': 'N3', 'rgrt_branch': 'Sp000', 'data_set_number': None}

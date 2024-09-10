@@ -43,7 +43,8 @@ class PhyloGameUtils:
         reward_normalizations = {}
         for data_set in self.all_data_sets:
             nj_tree = generate_tree_object(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.NJ_STARTING_TREE_FILE_NAME)
-            nj_ll = self.fe.extract_likelihood(nj_tree, data_set)
+            target_tree = None
+            nj_ll = self.fe.extract_likelihood(nj_tree, target_tree, data_set)
             reward_normalizations[data_set] = nj_ll['current_ll'][0]
         return reward_normalizations
 
