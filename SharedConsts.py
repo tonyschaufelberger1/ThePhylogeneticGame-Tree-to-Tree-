@@ -46,13 +46,13 @@ NUMBER_OF_SPECIES = [num_of_sp]  # only one num for now
 HOW_MANY_DATASETS_TRAIN = 1 if FIXED_TRAIN_DATASETS is None else len(FIXED_TRAIN_DATASETS)
 USE_RANDOM_STARTING_TREES = True
 TEST_EVERY = 5  # how many leaning episodes between tests
-SAVE_WEIGHTS_EVERY = 1  # how many episodes between Qnet and replay buffer snapshots
+SAVE_WEIGHTS_EVERY = 2  # how many episodes between Qnet and replay buffer snapshots
 #################
 # RL parameters #
 #################
 TIMES_TO_LEARN = 25  # how many time to run GTD between episodes
 BUFFER_SIZE = int(1e4)  # replay buffer size
-EPISODES = 10  # how many episodes to run the experiment for
+EPISODES = 15  # how many episodes to run the experiment for
 RANDOM_SEED = 'xx'
 # controls random starting tree queue mechanism - created for I\O created for efficacy
 RANDOM_STARTING_TREES_MEMORY_BATCH_FOR_DS = 100

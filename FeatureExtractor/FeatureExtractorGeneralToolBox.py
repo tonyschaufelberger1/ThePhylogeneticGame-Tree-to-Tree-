@@ -12,6 +12,9 @@ from ete3 import *
 import SharedConsts as SC
 from SPR_generator import SPR_move
 
+from Espalier import MAF
+import dendropy
+
 
 def generate_bootstrap_trees(data_set_number, algo, nbootrees):
     """
@@ -253,6 +256,7 @@ def parse_raxmlNG_content(content):
 
 
 def calc_likelihood(tree, msa_file, rates, pinv, alpha, freq):
+# def calc_likelihood(tree, target_tree):
     """
     :param tree: ETEtree OR a newick string
     :param msa_file:
@@ -263,6 +267,7 @@ def calc_likelihood(tree, msa_file, rates, pinv, alpha, freq):
     :param use_files: should generate optimized tree file
     :return: float. the score is the minus log-likelihood value of the tree
     """
+
     alpha = alpha if float(alpha) > 0.02 else 0.02
     model_line_params = 'GTR{rates}+I{pinv}+G{alpha}+F{freq}'.format(rates="{{{0}}}".format("/".join(rates)),
                                                                      pinv="{{{0}}}".format(pinv),

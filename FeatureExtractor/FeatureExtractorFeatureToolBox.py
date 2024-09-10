@@ -272,6 +272,7 @@ class FeatureExtractorFeatureToolBoxClass:
         stat_path = str(SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / SC.PHYML_PARAM_FILE_NAME)
         freq, rates, pinv, alpha = FGT.get_likelihood_params(stat_path)
         return FGT.calc_likelihood(self.trees[kwargs['which_tree']].write(format=1, format_root_node=True), msa_file_path, rates, pinv, alpha, freq)
+        # return FGT.calc_likelihood(self.trees[kwargs['which_tree']].write(format=1, format_root_node=True), self.trees['target_tree'])
 
     def likelihood_ml(self, **kwargs):
         msa_file_path = str(SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / SC.MSA_FILE_NAME)
