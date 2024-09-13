@@ -13,5 +13,7 @@ while(length(line <- readLines(f,n=1)) > 0) {
   # process line
 }
 
-print(TreeDist::SPRDist(tree1, tree2))
+mast <- phangorn::mast(tree1, tree2, tree=TRUE, rooted=FALSE)
+
+print(ape::write.tree(mast))
 

@@ -1,6 +1,7 @@
 from FeatureExtractor.FeatureExtractor import FeatureExtractorClass
 from Reinforcement_env.env_utils import PhyloGameUtils
 from SPR_generator.SPR_move import Edge
+import ete3
 # from tqdist import *
 # from Espalier import MAF
 # import dendropy
@@ -35,12 +36,25 @@ while species_input != species_target:
     # print(species_input)
     print(species_target == species_input)
 
+# print(input_tree)
+# print(target_tree)
+
 subprocess.call("touch test1.in", shell=True)
 subprocess.call(f"echo '{input_tree.write(format=1)}' > test1.in", shell=True)
 subprocess.call(f"echo '{target_tree.write(format=1)}' >> test1.in", shell=True)
-spr_dist = subprocess.check_output("/usr/bin/Rscript ./test.R < test1.in", shell=True)
+spr_dist = subprocess.check_output("/usr/bin/Rscript ./R_programs/spr_dist.R < test1.in", shell=True)
 spr_dist = int(spr_dist.strip().decode('UTF-8').split(' ')[1])
-print(spr_dist)
+quartet_dist = subprocess.check_output("/usr/bin/Rscript ./R_programs/quartet_dist.R < test1.in", shell=True)
+quartet_dist = float(quartet_dist.strip().decode('UTF-8').split(' ')[1])
+mast = subprocess.check_output("/usr/bin/Rscript ./R_programs/mast.R < test1.in", shell=True)
+mast = mast.strip().decode('UTF-8').split(' ')[1]
+mast = mast[1:len(mast)-1]
+# print("(" + mast[0:len(mast)-1] + ");")
+mast = ete3.Tree(mast, format=1)
+# print(mast)
+
+print("SPR distance upper bound between input and target", spr_dist)
+print("Quartet distance between input and target", quartet_dist)
 
 # DendoTreeIn = dendropy.Tree.get(data=input_tree.write(format=1), schema = 'newick')
 # DendoTreeTarget = dendropy.Tree.get(data=target_tree.write(format=1), schema = 'newick')
