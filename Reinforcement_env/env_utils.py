@@ -37,7 +37,7 @@ class PhyloGameUtils:
         else:
             self.all_data_sets = [f.name for f in SC.PATH_TO_RAW_TREE_DATA.iterdir() if f.is_dir()]
         self.starting_trees = self.init_starting_trees()
-        self.reward_normalizations = self.create_normalization_factors()
+        # self.reward_normalizations = self.create_normalization_factors()
 
     def create_normalization_factors(self):
         reward_normalizations = {}
@@ -154,7 +154,8 @@ class PhyloGameUtils:
                                              SC.RANDOM_STARTING_TREES_FILE_NAME.format(data_set=data_set))
             self.fill_queue_relevant_newicks(random_trees_path, parsimony_trees_path, current_start_tree_queue, data_set)
         start_tree = current_start_tree_queue.get()
-        return start_tree
+        target_tree = current_start_tree_queue.get()
+        return start_tree, target_tree
 
     def init_starting_trees(self, specific_data_set=None):
         """
@@ -220,6 +221,11 @@ class PhyloGameUtils:
             self.generate_starting_file_for_data_set(data_set)
             # self.generate_starting_file_for_data_set(data_set, is_random=False)
 
+    def generate_uspr_distances_for_data_set(self, data_set):
+        p = call(
+            [SC.USPR_SCRIPT + ' --uspr '], shell=True)
+        pass
+
     def generate_starting_file_for_data_set(self, data_set, is_random=True):
         """
         creates relevant random starting trees file
@@ -228,45 +234,53 @@ class PhyloGameUtils:
         :return:
         """
         # one for each episode, 10 for every test, and for the last test + something to offset randomness
-        how_many_trees_to_generate = 1000
+        # how_many_trees_to_generate = 1000
         folder_suffix_str = 'random_starting_trees' if is_random else 'parsimony_starting_trees'
-        raxml_command = 'rand' if is_random else 'parsimony'
+        # raxml_command = 'rand' if is_random else 'parsimony'
         path_to_starting_trees = os.path.join(str(self.results_dir), folder_suffix_str)
         if not os.path.exists(path_to_starting_trees):
             os.mkdir(path_to_starting_trees)
 
-        path_to_msa = str(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.MSA_FILE_NAME)
+        path = SC.PATH_TO_RAW_TREE_DATA / data_set
+        onlyfiles = [f for f in os.listdir(path) if (os.path.isfile(os.path.join(path, f)))]
+        for i in onlyfiles:
+            if not i.endswith('.tree'):
+                onlyfiles.remove(i)
+        command = "cp " + str(SC.PATH_TO_RAW_TREE_DATA / data_set) + '/' + onlyfiles[0] + " " + str(path_to_starting_trees) + '/' + data_set + '.tree'
+        call(command, shell=True)
 
-        stat_path = str(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.PHYML_PARAM_FILE_NAME)
-        freq, rates, pinv, alpha = FGT.get_likelihood_params(stat_path)
-        alpha = alpha if float(alpha) > 0.02 else 0.02
-        model_line_params = 'GTR{rates}+I{pinv}+G{alpha}+F{freq}'.format(rates="{{{0}}}".format("/".join(rates)),
-                                                                         pinv="{{{0}}}".format(pinv),
-                                                                         alpha="{{{0}}}".format(alpha),
-                                                                         freq="{{{0}}}".format("/".join(freq)))
+        # path_to_msa = str(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.MSA_FILE_NAME)
 
-        # make sure no raxml files already exist
-        for file in [os.path.join(path_to_starting_trees, f"{data_set}.raxml.rba"),
-                     os.path.join(path_to_starting_trees, f"{data_set}.raxml.log"),
-                     os.path.join(path_to_starting_trees, f"{data_set}.raxml.reduced.phy"),
-                     os.path.join(path_to_starting_trees, SC.RANDOM_STARTING_TREES_FILE_NAME.format(data_set=data_set))]:
-            if os.path.isfile(file):
-                os.remove(str(file))
+        # stat_path = str(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.PHYML_PARAM_FILE_NAME)
+        # freq, rates, pinv, alpha = FGT.get_likelihood_params(stat_path)
+        # alpha = alpha if float(alpha) > 0.02 else 0.02
+        # model_line_params = 'GTR{rates}+I{pinv}+G{alpha}+F{freq}'.format(rates="{{{0}}}".format("/".join(rates)),
+        #                                                                  pinv="{{{0}}}".format(pinv),
+        #                                                                  alpha="{{{0}}}".format(alpha),
+        #                                                                  freq="{{{0}}}".format("/".join(freq)))
 
-        # raxml-ng insists on getting a file and creating the extra files
-        prefix = os.path.join(path_to_starting_trees, str(data_set))
-        p = call(
-            [SC.RAXML_NG_SCRIPT, '--start', '--msa', path_to_msa, '--threads', '1', '--opt-branches', 'on',
-             '--opt-model', 'off', '--model', model_line_params, '--tree', raxml_command + '{'+str(how_many_trees_to_generate)+'}',
-             '--prefix', prefix, '--seed', str(random.randint(0, sys.maxsize))],
-            stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+        # # make sure no raxml files already exist
+        # for file in [os.path.join(path_to_starting_trees, f"{data_set}.raxml.rba"),
+        #              os.path.join(path_to_starting_trees, f"{data_set}.raxml.log"),
+        #              os.path.join(path_to_starting_trees, f"{data_set}.raxml.reduced.phy"),
+        #              os.path.join(path_to_starting_trees, SC.RANDOM_STARTING_TREES_FILE_NAME.format(data_set=data_set))]:
+        #     if os.path.isfile(file):
+        #         os.remove(str(file))
 
-        # delete bad files that raxml creates
-        for file in [os.path.join(path_to_starting_trees, f"{data_set}.raxml.rba"),
-                     os.path.join(path_to_starting_trees, f"{data_set}.raxml.log"),
-                     os.path.join(path_to_starting_trees, f"{data_set}.raxml.reduced.phy")]:
-            if os.path.isfile(file):
-                os.remove(str(file))
+        # # raxml-ng insists on getting a file and creating the extra files
+        # prefix = os.path.join(path_to_starting_trees, str(data_set))
+        # p = call(
+        #     [SC.RAXML_NG_SCRIPT, '--start', '--msa', path_to_msa, '--threads', '1', '--opt-branches', 'on',
+        #      '--opt-model', 'off', '--model', model_line_params, '--tree', raxml_command + '{'+str(how_many_trees_to_generate)+'}',
+        #      '--prefix', prefix, '--seed', str(random.randint(0, sys.maxsize))],
+        #     stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+
+        # # delete bad files that raxml creates
+        # for file in [os.path.join(path_to_starting_trees, f"{data_set}.raxml.rba"),
+        #              os.path.join(path_to_starting_trees, f"{data_set}.raxml.log"),
+        #              os.path.join(path_to_starting_trees, f"{data_set}.raxml.reduced.phy")]:
+        #     if os.path.isfile(file):
+        #         os.remove(str(file))
 
     def generate_raxml_max_liklihood_tree(self, data_set, total_trees):
         path_to_msa = str(SC.PATH_TO_RAW_TREE_DATA / data_set / SC.MSA_FILE_NAME)

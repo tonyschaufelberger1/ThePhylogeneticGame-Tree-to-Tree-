@@ -6,6 +6,7 @@ import ete3
 # from Espalier import MAF
 # import dendropy
 import subprocess
+import SharedConsts as SC
 
 fe = FeatureExtractorClass()
 
@@ -17,44 +18,47 @@ species_input = 0
 
 species_target = set()
 
-target_tree = helper.get_starting_tree()
-
-for node in target_tree.iter_descendants():
-    if node.is_leaf():
-        species_target.add(node.name)
-
-
-while species_input != species_target:
-    species_input = set()
-
-    input_tree = helper.get_starting_tree()
-
-    for node in input_tree.iter_descendants():
-        if node.is_leaf():
-            species_input.add(node.name)
-
-    # print(species_input)
-    print(species_target == species_input)
+input_tree, target_tree = helper.get_starting_tree()
 
 # print(input_tree)
 # print(target_tree)
 
-subprocess.call("touch test1.in", shell=True)
-subprocess.call(f"echo '{input_tree.write(format=1)}' > test1.in", shell=True)
-subprocess.call(f"echo '{target_tree.write(format=1)}' >> test1.in", shell=True)
-spr_dist = subprocess.check_output("/usr/bin/Rscript ./R_programs/spr_dist.R < test1.in", shell=True)
-spr_dist = int(spr_dist.strip().decode('UTF-8').split(' ')[1])
-quartet_dist = subprocess.check_output("/usr/bin/Rscript ./R_programs/quartet_dist.R < test1.in", shell=True)
-quartet_dist = float(quartet_dist.strip().decode('UTF-8').split(' ')[1])
-mast = subprocess.check_output("/usr/bin/Rscript ./R_programs/mast.R < test1.in", shell=True)
-mast = mast.strip().decode('UTF-8').split(' ')[1]
-mast = mast[1:len(mast)-1]
+
+# subprocess.call("touch test1.in", shell=True)
+# subprocess.call(f"echo '{input_tree.write(format=1)}' > test1.in", shell=True)
+# subprocess.call(f"echo '{target_tree.write(format=1)}' >> test1.in", shell=True)
+# spr_dist = subprocess.check_output(f"/usr/bin/Rscript ./R_programs/spr_dist.R <<< $'{input_tree.write(format=1)}\n{target_tree.write(format=1)}'", shell=True, executable='/bin/bash')
+# spr_dist = int(spr_dist.strip().decode('UTF-8').split(' ')[1])
+# quartet_dist = subprocess.check_output("/usr/bin/Rscript ./R_programs/quartet_dist.R < test1.in", shell=True)
+# quartet_dist = float(quartet_dist.strip().decode('UTF-8').split(' ')[1])
+# mast = subprocess.check_output("/usr/bin/Rscript ./R_programs/mast.R < test1.in", shell=True)
+# mast = mast.strip().decode('UTF-8').split(' ')[1]
+# mast = mast[1:len(mast)-1]
 # print("(" + mast[0:len(mast)-1] + ");")
-mast = ete3.Tree(mast, format=1)
+# mast = ete3.Tree(mast, format=1)
 # print(mast)
 
-print("SPR distance upper bound between input and target", spr_dist)
-print("Quartet distance between input and target", quartet_dist)
+
+results = subprocess.check_output(f"/usr/bin/Rscript ./R_programs/all.R <<< $'{input_tree.write(format=1)}\n{target_tree.write(format=1)}'", shell=True, executable='/bin/bash')
+results = results.strip().decode('UTF-8').split(' ')
+quartet_dist = float(results[1].split('\n')[0])
+print(quartet_dist)
+spr_dist = int(results[2])
+print(spr_dist)
+
+# subprocess.call("touch test1.in", shell=True)
+# subprocess.call(f"echo '{input_tree.write(format=4)}' > test1.in", shell=True)
+# subprocess.call(f"echo '{target_tree.write(format=4)}' >> test1.in", shell=True)
+
+# subprocess.call("touch uspr_dists.out", shell=True)
+# subprocess.call(SC.USPR_SCRIPT + " --uspr < test1.in > uspr_dists.out", shell=True)
+# uspr_dist = subprocess.check_output("cat uspr_dists.out", shell=True)
+# uspr_dist = uspr_dist.decode('UTF-8').split('\n')[3].split(' ')[2]
+# print("Optimal SPR distance as calculated by uSPR", uspr_dist)
+
+
+# print("SPR distance upper bound between input and target", spr_dist)
+# print("Quartet distance between input and target", quartet_dist)
 
 # DendoTreeIn = dendropy.Tree.get(data=input_tree.write(format=1), schema = 'newick')
 # DendoTreeTarget = dendropy.Tree.get(data=target_tree.write(format=1), schema = 'newick')

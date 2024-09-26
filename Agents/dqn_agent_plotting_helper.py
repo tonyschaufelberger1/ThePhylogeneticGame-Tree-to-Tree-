@@ -142,7 +142,8 @@ def plot_specific_agent_run_all_moves(results, hill_climb_results,  travel_log_i
     plt.plot(x_scale, results, color='#1f77b4', label='RL episodes ll')
     plt.plot(x_scale, [raxml_best_ll for i in range(len(results))], color='#2ca02c', label='Raxml best ll benchmark')
 
-    plt.plot(x_scale, hill_climb_results, color='#ff7f0e', label='Greedy ll')
+    # plt.plot(x_scale, hill_climb_results, color='#ff7f0e', label='Greedy ll')
+    # plt.plot(x_scale, [], color='#ff7f0e', label='Greedy ll')
     plt.xticks([i for i in range(0, len(results), 2)])
 
     plt.legend()

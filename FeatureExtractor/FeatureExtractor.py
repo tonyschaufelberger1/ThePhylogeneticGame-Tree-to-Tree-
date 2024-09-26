@@ -45,8 +45,13 @@ class FeatureExtractorClass:
         if calculation_flag != 'features':
             if normalization_factor < 0: # just a note: the returned ll is always the -log(likelihood) so this condition is always true. We could just take the abs/minus as the normalization factor in the first place.
                 normalization_factor *= -1
-            results[SC.TARGET_LABEL_COLUMN] = ((results['resulting_ll'][0] - results['current_ll'][0]) / normalization_factor) * SC.LABEL_MULTIPLIER
-            assert results['current_ll'][0] < 0, results['current_ll'][0]  # the normalization above is dependent on the fact
+            # results[SC.TARGET_LABEL_COLUMN] = ((results['resulting_ll'][0] - results['current_ll'][0]) / normalization_factor) * SC.LABEL_MULTIPLIER
+            if isinstance(results['current_ll'], list):
+                print(results['current_ll'])
+                results['current_ll'] = results['current_ll'][0]
+            print(results)
+            results[SC.TARGET_LABEL_COLUMN] = (results['current_ll'] - results['resulting_ll']) * SC.LABEL_MULTIPLIER
+            # assert results['current_ll'] < 0, results['current_ll']  # the normalization above is dependent on the fact
             # that the current is always negative
         # else:
         #     results['total_branch_length_nj_tree'] = SC.NJ_TBL_FOR_DATASET_DICT[data_set_number]
@@ -75,6 +80,7 @@ class FeatureExtractorClass:
         features: just the features
         :return: the relevant trees results
         """
+        # print("calculating tree features")
         calculation_flag = calculation_flag.lower()
         if calculation_flag == 'all':
             tree_results = {name: 0 for name in self.FTB.tree_mappings[which_tree].keys()}
@@ -109,6 +115,7 @@ class FeatureExtractorClass:
         :return: a single lined dataframe with all the starting tree, spr move an feature data.
         feature names can be found in the ToolBox class.
         """
+        # print("extracting features")
         resulting_tree, prune_subtree, remaining_tree, b_subtree, c_subtree = SPR.generate_neighbour(base_tree=current_tree_obj, possible_move=move)
         prune_edge, rgft_edge = move
 
@@ -123,19 +130,20 @@ class FeatureExtractorClass:
                                                                       split_hash_dict=split_hash_dict)
         current_tree_results = self.calculate_tree_features(which_tree='current_tree', prune_edge=prune_edge,
                                                             rgft_edge=rgft_edge, calculation_flag=calculation_flag)
-        prune_tree_results = self.calculate_tree_features(which_tree='prune_tree', prune_edge=prune_edge,
-                                                          rgft_edge=rgft_edge, calculation_flag=calculation_flag)
-        remaining_tree_results = self.calculate_tree_features(which_tree='remaining_tree', prune_edge=prune_edge,
-                                                              rgft_edge=rgft_edge, calculation_flag=calculation_flag)
-        b_subtree_tree_results = self.calculate_tree_features(which_tree='b_subtree', prune_edge=prune_edge,
-                                                              rgft_edge=rgft_edge, calculation_flag=calculation_flag)
-        c_subtree_tree_results = self.calculate_tree_features(which_tree='c_subtree', prune_edge=prune_edge,
-                                                              rgft_edge=rgft_edge, calculation_flag=calculation_flag)
+        # prune_tree_results = self.calculate_tree_features(which_tree='prune_tree', prune_edge=prune_edge,
+        #                                                   rgft_edge=rgft_edge, calculation_flag=calculation_flag)
+        # remaining_tree_results = self.calculate_tree_features(which_tree='remaining_tree', prune_edge=prune_edge,
+        #                                                       rgft_edge=rgft_edge, calculation_flag=calculation_flag)
+        # b_subtree_tree_results = self.calculate_tree_features(which_tree='b_subtree', prune_edge=prune_edge,
+        #                                                       rgft_edge=rgft_edge, calculation_flag=calculation_flag)
+        # c_subtree_tree_results = self.calculate_tree_features(which_tree='c_subtree', prune_edge=prune_edge,
+        #                                                       rgft_edge=rgft_edge, calculation_flag=calculation_flag)
         resulting_tree_results = self.calculate_tree_features(which_tree='resulting_tree', prune_edge=prune_edge,
                                                               rgft_edge=rgft_edge, calculation_flag=calculation_flag)
 
-        combined_results = {**current_tree_results, **prune_tree_results, **remaining_tree_results,
-                            **b_subtree_tree_results, **c_subtree_tree_results, **resulting_tree_results}
+        # combined_results = {**current_tree_results, **prune_tree_results, **remaining_tree_results,
+        #                     **b_subtree_tree_results, **c_subtree_tree_results, **resulting_tree_results}
+        combined_results = {**current_tree_results, **resulting_tree_results}
 
         tree_str = current_tree_obj.write(format=1) if return_tree_string else ''
         results = self.order_data(tree_str, prune_edge.node_a, rgft_edge.node_a,
@@ -161,6 +169,7 @@ class FeatureExtractorClass:
         be normalized so because this process happens here, we pass the previous ll
         :return: ll
         """
+        print("extracting spr distance")
         self.FTB = FeatureToolBox.FeatureExtractorFeatureToolBoxClass(current_tree=current_tree_obj, target_tree=target_tree_obj, prune_tree=None,
                                                                       remaining_tree=None, b_subtree=None,
                                                                       c_subtree=None, data_set_number=data_set_number,
@@ -174,6 +183,7 @@ class FeatureExtractorClass:
             current_tree_results['current_ll'] = [previous_ll]
         results = self.order_data(current_tree_obj.write(format=1), None, None, current_tree_results,
                                   data_set_number=data_set_number, calculation_flag='ll', normalization_factor=normalization_factor)
+        print("Likelihood extraction results:", results)
         return results
 
 

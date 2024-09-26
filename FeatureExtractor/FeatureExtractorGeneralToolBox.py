@@ -255,6 +255,10 @@ def parse_raxmlNG_content(content):
     return res_dict
 
 
+# def calc_uspr(tree, target):
+#     pass
+
+
 def calc_likelihood(tree, msa_file, rates, pinv, alpha, freq):
 # def calc_likelihood(tree, target_tree):
     """
@@ -381,6 +385,7 @@ def pool_worker_wrapper(params):
     results = []
     for param in params:
         current_tree_obj = param['current_tree_obj']
+        target_tree_obj = param['target_tree_obj']
         move = param['move']
         data_set_number = param['data_set_number']
         should_transform_results = param['should_transform_results']
@@ -391,7 +396,7 @@ def pool_worker_wrapper(params):
         tool_box_instance = param['tool_box_instance']
         normalization_factor = param['normalization_factor']
         split_hash_dict = param['split_hash_dict']
-        res = tool_box_instance.extract_features(current_tree_obj=current_tree_obj, move=move,
+        res = tool_box_instance.extract_features(current_tree_obj=current_tree_obj, target_tree_obj=target_tree_obj, move=move,
                                                  data_set_number=data_set_number, calculation_flag=calculation_flag,
                                                  result_format=result_format, return_tree_string=return_tree_string,
                                                  should_transform_results=should_transform_results, queue=queue,
@@ -401,7 +406,7 @@ def pool_worker_wrapper(params):
     return results
 
 
-def extract_all_neibours_features_multiprocessing(current_tree_obj, tool_box_instance, number_of_cpus,
+def extract_all_neibours_features_multiprocessing(current_tree_obj, target_tree_obj, tool_box_instance, number_of_cpus,
                                                   data_set_num=None, should_transform_results=True, queue=None,
                                                   calculation_flag='all', result_format='dict',
                                                   return_tree_string=False, all_moves=None, normalization_factor=1,
@@ -416,7 +421,7 @@ def extract_all_neibours_features_multiprocessing(current_tree_obj, tool_box_ins
     chunk_size = 10
     all_moves = SPR_move.get_moves_from_obj(current_tree_obj) if all_moves is None else all_moves
     for move in all_moves:
-        param_dict = {'current_tree_obj': current_tree_obj, 'move': move, 'data_set_number': data_set_num,
+        param_dict = {'current_tree_obj': current_tree_obj,  'target_tree_obj': target_tree_obj, 'move': move, 'data_set_number': data_set_num,
                       'should_transform_results': should_transform_results, 'queue': queue,
                       'calculation_flag': calculation_flag, 'result_format': result_format,
                       'return_tree_string': return_tree_string, 'tool_box_instance': tool_box_instance,

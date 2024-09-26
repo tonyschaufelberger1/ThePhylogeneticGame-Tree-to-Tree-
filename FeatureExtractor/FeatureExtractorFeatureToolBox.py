@@ -6,6 +6,7 @@ import numpy as np
 
 import FeatureExtractor.FeatureExtractorGeneralToolBox as FGT
 import SharedConsts as SC
+import subprocess
 
 
 class FeatureExtractorFeatureToolBoxClass:
@@ -35,46 +36,48 @@ class FeatureExtractorFeatureToolBoxClass:
                              # 'branch_length_rgft': self.feature_branch_length_rgft,
                              'topo_dist_from_pruned': self.feature_topo_dist_from_pruned,
                              'rf_dist': self.feature_rf_distance,
+                             # 'quartet_dist': self.feature_quartet_distance,
                              # 'rf_dist_max': self.feature_rf_distance,
                              # 'branch_dist_from_pruned': self.feature_branch_dist_from_pruned,
                              # 'bstrap_nj_prune_current_tree': self.features_bootstrap_nj_prune,
                              # 'bstrap_nj_rgft_current_tree': self.features_bootstrap_nj_rgft,
                              # 'bstrap_upgma_prune_current_tree': self.features_bootstrap_upgma_prune,
                              # 'bstrap_upgma_rgft_current_tree': self.features_bootstrap_upgma_rgft,
-                             'current_ll': self.feature_likelihood
+                             'current_ll': self.spr_dist_approx
                              },
-            'b_subtree': {'number_of_species_b_subtree': self.feature_number_of_species,
+            # 'b_subtree': {
+            #     'number_of_species_b_subtree': self.feature_number_of_species,
                              # 'rf_dist_b_subtree': self.feature_rf_distance,
                           # 'total_branch_length_b_subtree': self.feature_tbl,
                           # 'longest_branch_b_subtree': self.feature_longest_branch,
-                          },
-            'c_subtree': {'number_of_species_c_subtree': self.feature_number_of_species,
+                          # },
+            # 'c_subtree': {'number_of_species_c_subtree': self.feature_number_of_species,
                              # 'rf_dist_c_subtree': self.feature_rf_distance,
                           # 'total_branch_length_c_subtree': self.feature_tbl,
                           # 'longest_branch_c_subtree': self.feature_longest_branch,
-                          },
-            'prune_tree': {'number_of_species_prune': self.feature_number_of_species,
+                          # },
+            # 'prune_tree': {'number_of_species_prune': self.feature_number_of_species,
                              # 'rf_dist_prune': self.feature_rf_distance,
                            # 'total_branch_length_prune': self.feature_tbl,
                            # 'longest_branch_prune': self.feature_longest_branch,
-                           },
-            'remaining_tree': {'number_of_species_remaining': self.feature_number_of_species,
+                           # },
+            # 'remaining_tree': {'number_of_species_remaining': self.feature_number_of_species,
                              # 'rf_dist_remaining': self.feature_rf_distance,
                                # 'total_branch_length_remaining': self.feature_tbl,
                                # 'longest_branch_remaining': self.feature_longest_branch,
-                               },
+                               # },
             'resulting_tree': {
                 # 'bstrap_nj_prune_resulting': self.features_bootstrap_nj_prune,
                 #                'bstrap_nj_rgft_resulting': self.features_bootstrap_nj_rgft,
                 #                'bstrap_upgma_prune_resulting': self.features_bootstrap_upgma_prune,
                 #                'bstrap_upgma_rgft_resulting': self.features_bootstrap_upgma_rgft,
-                               'resulting_ll': self.feature_likelihood
+                               'resulting_ll': self.spr_dist_approx
                                    }
             }
         # params
         self.tree_helper_params = {
             'current_tree': {'branch_lengths': None, 'distance_from_pruned': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
-                             'rf_dist': None
+                             'rf_dist': None, 'quartet_dist': None
                              },
             'prune_tree': {'ntaxa_tree': None, 'ntaxa_prune': None, 'branch_lengths': None, 'BL_Dana': None, 'stemminess_indexes_Dana': None, 'frac_of_cherries_Dana': None, 'PBN_Dana': None, 'PBL_Dana': None,
                              # 'rf_dist': None
@@ -200,6 +203,26 @@ class FeatureExtractorFeatureToolBoxClass:
         else:
             return self.tree_helper_params['current_tree']['rf_dist']
 
+    def feature_quartet_distance(self, **kwargs):
+        target_tree = self.trees['target_tree'].get_tree_root()
+        tree = self.trees['current_tree'].get_tree_root()
+        if self.tree_helper_params['current_tree']['quartet_dist'] is None:
+            # subprocess.call(f"touch input-{os.getpid()}.in", shell=True)
+            # subprocess.call(f"echo '{tree.write(format=1)}' > input-{os.getpid()}.in", shell=True)
+            # subprocess.call(f"echo '{target_tree.write(format=1)}' >> input-{os.getpid()}.in", shell=True)
+            # quartet_dist = subprocess.check_output(f"/usr/bin/Rscript ./R_programs/quartet_dist.R < input-{os.getpid()}.in", shell=True)
+            quartet_dist = subprocess.check_output(f"/usr/bin/Rscript ./R_programs/quartet_dist.R <<< $'{tree.write(format=1)}\n{target_tree.write(format=1)}'", shell=True, executable='/bin/bash')
+            quartet_dist = float(quartet_dist.strip().decode('UTF-8').split(' ')[1])
+
+            # subprocess.call(f"rm input-{os.getpid()}.in", shell=True)
+
+            # max_rf = rf_distance[1]
+            self.tree_helper_params['current_tree']['quartet_dist'] = quartet_dist
+            # self.tree_helper_params['current_tree']['rf_dist_max'] = max_rf
+            return quartet_dist
+        else:
+            return self.tree_helper_params['current_tree']['quartet_dist']
+
     # def features_bootstrap_nj_prune(self, **kwargs):
     #     branch_name = kwargs['prune_edge'].node_a
     #     if kwargs['which_tree'] == 'resulting_tree':
@@ -273,6 +296,16 @@ class FeatureExtractorFeatureToolBoxClass:
         freq, rates, pinv, alpha = FGT.get_likelihood_params(stat_path)
         return FGT.calc_likelihood(self.trees[kwargs['which_tree']].write(format=1, format_root_node=True), msa_file_path, rates, pinv, alpha, freq)
         # return FGT.calc_likelihood(self.trees[kwargs['which_tree']].write(format=1, format_root_node=True), self.trees['target_tree'])
+
+    def spr_dist_approx(self, **kwargs):
+        subprocess.call("touch temp.in", shell=True)
+        subprocess.call(f"echo '{self.trees[kwargs['which_tree']].write(format=1)}' > temp.in", shell=True)
+        subprocess.call(f"echo '{self.trees['target_tree'].write(format=1)}' >> temp.in", shell=True)
+        spr_dist = subprocess.check_output(f"{SC.PATH_TO_RSCRIPT} ./R_programs/spr_dist.R < temp.in", shell=True)
+        spr_dist = int(spr_dist.strip().decode('UTF-8').split(' ')[1])
+        subprocess.call("rm temp.in", shell=True)
+
+        return spr_dist
 
     def likelihood_ml(self, **kwargs):
         msa_file_path = str(SC.PATH_TO_RAW_TREE_DATA / self.data_set_number / SC.MSA_FILE_NAME)
