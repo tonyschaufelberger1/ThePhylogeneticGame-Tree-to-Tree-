@@ -50,7 +50,7 @@ SAVE_WEIGHTS_EVERY = 2  # how many episodes between Qnet and replay buffer snaps
 #################
 # RL parameters #
 #################
-TIMES_TO_LEARN = 50  # how many time to run GTD between episodes
+TIMES_TO_LEARN = 5  # how many time to run GTD between episodes
 BUFFER_SIZE = int(1e4)  # replay buffer size
 EPISODES = 15  # how many episodes to run the experiment for
 RANDOM_SEED = 'xx'
@@ -85,7 +85,7 @@ EXPLORATION_POLICY = ExploreScheduler.SoftMaxSchedule(
 USE_TARGET = False
 TARGET_NET_UPDATE_POLICY = 'hard'
 SOFT_UPDATE_RATE = 1e-3  # for soft update of target parameters
-UPDATE_TARGET_NET = 100000  # after how many iterations of GTD to update the target net
+UPDATE_TARGET_NET = 2  # after how many iterations of GTD to update the target net
 
 
 ##########################
@@ -107,20 +107,28 @@ CURRENT_TREE_NEWICK_COLUMN_NAME = 'current_tree_newick'
 SPR_MOVE_PRUNE_BRANCH = 'prune_branch'
 SPR_MOVE_RGRFT_BRANCH = 'rgrt_branch'
 NBOOTREES = 200
-LABEL_MULTIPLIER = 1000
+LABEL_MULTIPLIER = 1
 DATA_SET_GROUPING_COLUMN_NAME = 'data_set_number'
 METADATA_LIST = [SPR_MOVE_PRUNE_BRANCH, SPR_MOVE_RGRFT_BRANCH, DATA_SET_GROUPING_COLUMN_NAME]
 LABEL_LIST = [TARGET_LABEL_COLUMN, 'resulting_ll', 'current_ll']
-FEATURE_LIST = ['total_branch_length_nj_tree',
-                'total_branch_length_current_tree', 'longest_branch_current_tree', 'branch_length_prune',
-                'branch_length_rgft', 'topo_dist_from_pruned', 'branch_dist_from_pruned',
-                'bstrap_nj_prune_current_tree', 'bstrap_nj_rgft_current_tree', 'bstrap_upgma_prune_current_tree',
-                'bstrap_upgma_rgft_current_tree', 'number_of_species_b_subtree', 'total_branch_length_b_subtree',
-                'longest_branch_b_subtree', 'number_of_species_c_subtree', 'total_branch_length_c_subtree',
-                'longest_branch_c_subtree', 'number_of_species_prune', 'total_branch_length_prune',
-                'longest_branch_prune', 'number_of_species_remaining', 'total_branch_length_remaining',
-                'longest_branch_remaining', 'bstrap_nj_prune_resulting', 'bstrap_nj_rgft_resulting',
-                'bstrap_upgma_prune_resulting', 'bstrap_upgma_rgft_resulting']
+FEATURE_LIST = ['rf_dist',
+                # 'quartet_dist',
+                'topo_dist_from_pruned',
+                # 'number_of_species_b_subtree',
+                # 'number_of_species_c_subtree',
+                # 'number_of_species_prune',
+                # 'number_of_species_remaining'
+                ]
+# FEATURE_LIST = ['total_branch_length_nj_tree',
+#                 'total_branch_length_current_tree', 'longest_branch_current_tree', 'branch_length_prune',
+#                 'branch_length_rgft', 'topo_dist_from_pruned', 'branch_dist_from_pruned',
+#                 'bstrap_nj_prune_current_tree', 'bstrap_nj_rgft_current_tree', 'bstrap_upgma_prune_current_tree',
+#                 'bstrap_upgma_rgft_current_tree', 'number_of_species_b_subtree', 'total_branch_length_b_subtree',
+#                 'longest_branch_b_subtree', 'number_of_species_c_subtree', 'total_branch_length_c_subtree',
+#                 'longest_branch_c_subtree', 'number_of_species_prune', 'total_branch_length_prune',
+#                 'longest_branch_prune', 'number_of_species_remaining', 'total_branch_length_remaining',
+#                 'longest_branch_remaining', 'bstrap_nj_prune_resulting', 'bstrap_nj_rgft_resulting',
+#                 'bstrap_upgma_prune_resulting', 'bstrap_upgma_rgft_resulting']
 
 IN_FEATURES = len(FEATURE_LIST)
 DATA_TYPES = {name: str if name in METADATA_LIST else float for name in
@@ -129,6 +137,8 @@ DATA_TYPES = {name: str if name in METADATA_LIST else float for name in
 ##########################
 ######### DATA ###########
 ##########################
+USPR_SCRIPT = "../uspr-master/uspr" # file location of uspr by Chris Whidden
+PATH_TO_RSCRIPT = "/usr/bin/Rscript"
 RAXML_NG_SCRIPT = "raxml-ng"  # after you install raxml-ng on your machine
 PATH_TO_SUDO_STARTING_TREE = Path('SudoStartingTree.phy')
 PATH_TO_SUDO_STARTING_ACTION = Path('SudoStartingTreeMove.json')
@@ -149,7 +159,7 @@ RANDOM_STARTING_TREE_OPTIONS_FILE_NAME = Path('random_starting_trees_{}_trees_ho
 PATH_TO_TESTING_TREES_FILE = Path("Tree_data/sampled_datasets_All_sized_ds_Test_RL.csv")
 PATH_TO_TRAINING_TREES_FILE = Path("Tree_data/sampled_datasets_All_sized_ds_Train_RL.csv")
 
-RANDOM_STARTING_TREES_FILE_NAME = "{data_set}.raxml.startTree"
+RANDOM_STARTING_TREES_FILE_NAME = "{data_set}.tree"
 
 ##########################
 ######### AGENT ##########
@@ -166,4 +176,4 @@ TESTING_RESULT_COLUMNS = ["test_replication_number", "data_set_number", "ll_diff
 ## LEARN FROM EXPERIENCE #
 ##########################
 
-EPOCHS = 501
+EPOCHS = 301

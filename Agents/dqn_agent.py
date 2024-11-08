@@ -102,17 +102,23 @@ class DqnAgent:
             if old_state_actions is None:
                 assert first_step
                 old_state_actions = self.env.get_all_neighbor_states()
+            # print("state actions for this step:", old_state_actions)
 
             Q_prediction, chosen_action_index = self.make_policy_move(old_state_actions)
             state_action = old_state_actions[chosen_action_index]
             # act and get feedback from env (also maybe train your Q network if you like)
             reward, done = self.env.step(chosen_action_index)
 
+            print(f"The chosen action: {chosen_action_index}\{len(old_state_actions)}, q prediction: {Q_prediction}, and reward for this action: {reward}\n")
+
             # find maximal next state-action
             new_state_actions = self.env.get_all_neighbor_states()
             new_states_action_predictions = self.Q_network.predict(new_state_actions)
             new_Q_prediction, new_chosen_index = self.get_max_action(new_states_action_predictions)
             new_state_action = new_state_actions[new_chosen_index]
+
+            # print("new state actions for this step:", new_state_actions)
+            print(f"The new action: {new_chosen_index}/{len(new_state_actions)}, new q prediction: {new_Q_prediction}\n")
 
             self.Q_network.add_memory(state_action, reward, done, new_state_action)
             old_state_actions = new_state_actions
@@ -130,9 +136,11 @@ class DqnAgent:
         larger loop to orchestrate training.
         :return:
         """
+        print("begin training for dqn_agent\n")
         all_episode_reward, all_episode_q_values, loss = [], [], []
         try:
             for episode in range(episodes):
+                print(f"start a new episode: {episode}")
                 gc.collect()
                 cumulative_reward, start_q_val = self.episode()
                 all_episode_reward.append(cumulative_reward)
@@ -168,7 +176,9 @@ class DqnAgent:
 
         return all_episode_reward, all_episode_q_values, loss
 
-    def test(self, result_dir, episode, num_of_tests=20, final_test=False):
+    # def test(self, result_dir, episode, num_of_tests=20, final_test=False):
+    def test(self, result_dir, episode, num_of_tests=5, final_test=False):
+        print("run test method in dqn_agent \n")
 
         # track on which episodes were testing on
 
@@ -214,6 +224,7 @@ class DqnAgent:
         tests agent on all datasets in test_env, test_env is just a var name- it's ok to send the train env
         """
         # save the old env
+        print("begin generating new test results: \n")
         old_env = self.env
         self.Q_network.to_eval_mode()
 
@@ -221,12 +232,14 @@ class DqnAgent:
         results_per_data_set = {}
 
         for dataset in self.env.helper.all_data_sets:
+            print("running a new dataset:", dataset)
             # set up constants per data set:
             # get raxml benchmark per dataset - this is a static number currently, if we decide to re-calc every test
             # move into inner loop and change const to list
             self.env.reset(dataset=dataset)
             # normalization factor for dll (NJ tree -likelihood)
-            specific_norm_factor_ll = abs(self.env.helper.get_normalization_factor_per_ds(data_set=dataset))
+            # specific_norm_factor_ll = abs(self.env.helper.get_normalization_factor_per_ds(data_set=dataset))
+            specific_norm_factor_ll = 1
             results_per_data_set[dataset] = {'ll_results': [], 'rf_results': [],
                                              'dynamic_raxml_best_ll': [],
                                              'specific_norm_factor_ll': specific_norm_factor_ll,
@@ -237,27 +250,33 @@ class DqnAgent:
                 # create condition for full logging - time-consuming
                 verbose = test_replication == 0
                 # reset env starting tree
-                starting_tree = self.env.reset(dataset=dataset)
-                current_tree_raxml_best_ll = self.env.get_raxml_likelihood_specific_starting_tree(starting_tree)
+                starting_tree, target_tree = self.env.reset(dataset=dataset)
+                # current_tree_raxml_best_ll = self.env.get_raxml_likelihood_specific_starting_tree(starting_tree)
+                current_tree_best_spr = self.env.get_uspr_spr_dist_specific_starting_tree(starting_tree, target_tree)
                 init_likelihood = self.env.likelihood
+
+                print(f"running a new test with best spr {current_tree_best_spr} and initial {self.env.likelihood}; test number {test_replication}\n")
                 # run actual test episode
                 gc.collect()
                 max_likelihood_reached, agent_ll_log, agent_rf_log, amazing_moves = self.run_test_episode(
-                    dataset, current_tree_raxml_best_ll, should_return_full_travel_log=verbose)
+                    dataset, current_tree_best_spr, should_return_full_travel_log=verbose)
+                    # dataset, current_tree_raxml_best_ll, should_return_full_travel_log=verbose)
 
                 # log results
                 # if you want to add rf - do it here
-                results_per_data_set[dataset]['dynamic_raxml_best_ll'].append(current_tree_raxml_best_ll)
+                # results_per_data_set[dataset]['dynamic_raxml_best_ll'].append(current_tree_raxml_best_ll)
+                results_per_data_set[dataset]['dynamic_raxml_best_ll'].append(current_tree_best_spr)
                 results_per_data_set[dataset]['ll_results'].append(max_likelihood_reached)
                 results_per_data_set[dataset]['init_likelihood'].append(init_likelihood)
                 if verbose:
                     results_per_data_set[dataset]['full_ll_travel_logs'].append(agent_ll_log)
                     # log hill-climb agent
-                    hill_climb_log = CheatingGreedyAgent.hill_climb(dataset, starting_tree)
-                    results_per_data_set[dataset]['hill_climb_travel_logs'].append(hill_climb_log)
+                    # hill_climb_log = CheatingGreedyAgent.hill_climb(dataset, starting_tree, target)
+                    # results_per_data_set[dataset]['hill_climb_travel_logs'].append(hill_climb_log)
                 if len(amazing_moves) > 0:
                     results_per_data_set[dataset]['amazing_moves'] += amazing_moves
 
+        print("Testing is complete \n")
         # load the old env
         self.env = old_env
         assert self.env.is_train
@@ -269,6 +288,7 @@ class DqnAgent:
                          should_calculate_rf=False):
         # set up variables
         # if should_return_full_travel_log:
+        print("running a new test episode in dqn_agent")
         if should_return_full_travel_log:
             agent_ll_log = [self.env.likelihood]
             agent_rf_log = [self.env.tree] if should_calculate_rf else []
@@ -279,10 +299,12 @@ class DqnAgent:
         move_counter = 0
 
         while not done:
+            print("making a move...")
             move_counter += 1
             state_actions = self.env.get_all_neighbor_states()
             states_action_pairs_Q_predictions = self.Q_network.predict(state_actions)
             Q_prediction, chosen_action_index = self.get_max_action(states_action_pairs_Q_predictions)
+            print("Q_prediction:", Q_prediction, "\nChosen action", chosen_action_index)
 
             # act and get feedback from env
             should_perform_actual_reward_calc = SHOULD_OPTIMIZE_BRANCH_LENGTHS or move_counter >= HORIZON - 1 # should_return_full_travel_log
@@ -311,6 +333,7 @@ class DqnAgent:
         # our horizon could force the agent to preform a last bad move
         assert len(agent_ll_log) > 1
         max_likelihood_reached = max(agent_ll_log[-1], agent_ll_log[-2])
+        print("max likelihood reached: ", max_likelihood_reached)
 
         return max_likelihood_reached, agent_ll_log, agent_rf_log, amazing_moves
 
@@ -470,15 +493,19 @@ class DqnAgent:
         tmp_df["rf_norm_factor"] = 0
 
         # calc improvement %
-        nj_ll = self.env.get_NJ_likelihood(data_set=data_set)
+        # nj_ll = self.env.get_NJ_likelihood(data_set=data_set)
         init_likelihood = pd.Series(data_set_results["init_likelihood"])
-        raxml_improvement = tmp_df["raxml_ml"] - init_likelihood
+        # raxml_improvement = tmp_df["raxml_ml"] - init_likelihood
         our_improvement = tmp_df["max_ll_reached"] - init_likelihood
-        nj_improvement = nj_ll - init_likelihood
-        tmp_df['improvement_percent'] = our_improvement / raxml_improvement
-        tmp_df['improvement_percent_nj'] = nj_improvement / raxml_improvement
-        tmp_df['improvement_percent_us_nj'] = our_improvement / nj_improvement
-        tmp_df['improvement_percent_raxml_nj'] = raxml_improvement / nj_improvement
+        # nj_improvement = nj_ll - init_likelihood
+        # tmp_df['improvement_percent'] = our_improvement / raxml_improvement
+        # tmp_df['improvement_percent_nj'] = nj_improvement / raxml_improvement
+        # tmp_df['improvement_percent_us_nj'] = our_improvement / nj_improvement
+        # tmp_df['improvement_percent_raxml_nj'] = raxml_improvement / nj_improvement
+        tmp_df['improvement_percent'] = our_improvement
+        tmp_df['improvement_percent_nj'] = 0
+        tmp_df['improvement_percent_us_nj'] = 0
+        tmp_df['improvement_percent_raxml_nj'] = 0
         return tmp_df
 
     def format_test_episodes_results(self, results_per_data_set, num_of_tests):
@@ -684,10 +711,11 @@ class DqnAgent:
                                                                           data_set=data_set,
                                                                           is_normalized=False)
             for i, travel_log in enumerate(full_travel_logs.get(data_set)):
-                hill_climb_results = hill_climb_travel_logs.get(data_set)[i]
+                # hill_climb_results = hill_climb_travel_logs.get(data_set)[i]
                 raxml_best_ll = self.persistent_testing_results['per_data_set'][data_set]['raxml'][i]
                 dqn_agent_plotting_helper.plot_specific_agent_run_all_moves(results=travel_log,
-                                                                            hill_climb_results=hill_climb_results,
+                                                                            # hill_climb_results=hill_climb_results,
+                                                                            hill_climb_results=[],
                                                                             travel_log_index=i,
                                                                             raxml_best_ll=raxml_best_ll,
                                                                             target_dir=target_dir,

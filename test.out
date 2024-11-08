@@ -1,0 +1,49 @@
+False
+False
+False
+False
+False
+False
+True
+
+   /-Sp000
+  |
+  |   /-Sp006
+  |--|
+  |  |   /-Sp004
+--|   \-|
+  |      \-Sp001
+  |
+  |      /-Sp005
+  |   /-|
+   \-|   \-Sp003
+     |
+      \-Sp002
+
+   /-Sp000
+  |
+  |      /-Sp006
+  |   /-|
+  |  |  |   /-Sp004
+--|--|   \-|
+  |  |      \-Sp003
+  |  |
+  |   \-Sp001
+  |
+  |   /-Sp005
+   \-|
+      \-Sp002
+
+      /-Sp000
+   /-|
+  |  |   /-Sp005
+  |   \-|
+--|      \-Sp002
+  |
+  |   /-Sp006
+   \-|
+      \-Sp001
+SPR distance upper bound between input and target 2
+Quartet distance between input and target 0.6571429
+[a=N3 b=N2] [a=N5 b=Sp006]
+{'topo_dist_from_pruned': 3.0, 'rf_dist': 8, 'number_of_species_prune': 3, 'number_of_species_remaining': 4, 'number_of_species_b_subtree': 2, 'number_of_species_c_subtree': 1, 'prune_branch': 'N3', 'rgrt_branch': 'N5', 'data_set_number': None}

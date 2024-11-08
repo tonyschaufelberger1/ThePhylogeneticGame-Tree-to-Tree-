@@ -1,7 +1,9 @@
-# ThePhylogeneticGame
-Git repository for the paper : "The tree reconstruction game: phylogenetic
+# ThePhylogeneticGameSPRDistances
+Fork of the Git repository for the paper : "The tree reconstruction game: phylogenetic
 reconstruction using reinforcement learning" <br />
 <Link to paper>
+
+This paper aims to investigate the effectiveness of the Reinforcement Learning approach when computing the SPR distance between two phylogenetic trees. Due to time and computation constraints, the results are not optimized but rather a proof-of-concept.
 
 
 In order to install the necessary environment please make sure you have 

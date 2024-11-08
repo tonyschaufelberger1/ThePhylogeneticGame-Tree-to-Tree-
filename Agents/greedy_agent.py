@@ -1,5 +1,6 @@
 import SharedConsts as SC
 from FeatureExtractor.FeatureExtractorGeneralToolBox import calc_likelihood, get_likelihood_params
+# from FeatureExtractor.FeatureExtractorGeneralToolBox import calc_uspr
 from SPR_generator.SPR_move import get_moves_from_obj, generate_base_neighbour
 
 
@@ -11,15 +12,17 @@ class CheatingGreedyAgent:
     """
 
     @staticmethod
-    def hill_climb(data_set, start_tree):
+    def hill_climb(data_set, start_tree, target):
 
-        msa_file_path = str(SC.PATH_TO_RAW_TREE_DATA / str(data_set) / SC.MSA_FILE_NAME)
-        stat_path = str(SC.PATH_TO_RAW_TREE_DATA / str(data_set) / SC.PHYML_PARAM_FILE_NAME)
-        freq, rates, pinv, alpha = get_likelihood_params(stat_path)
+        # msa_file_path = str(SC.PATH_TO_RAW_TREE_DATA / str(data_set) / SC.MSA_FILE_NAME)
+        # stat_path = str(SC.PATH_TO_RAW_TREE_DATA / str(data_set) / SC.PHYML_PARAM_FILE_NAME)
+        # freq, rates, pinv, alpha = get_likelihood_params(stat_path)
 
         current_tree = start_tree
-        max_likelihood, _ = calc_likelihood(start_tree.write(format=1, format_root_node=True),
-                                            msa_file_path, rates, pinv, alpha, freq)
+        # max_likelihood, _ = calc_likelihood(start_tree.write(format=1, format_root_node=True),
+        #                                     msa_file_path, rates, pinv, alpha, freq)
+        max_likelihood = calc_uspr(start_tree.write(format=1, format_root_node=True),
+                                            target)
         travel_log = [max_likelihood]
         step_taken = True
         for _ in range(SC.HORIZON):

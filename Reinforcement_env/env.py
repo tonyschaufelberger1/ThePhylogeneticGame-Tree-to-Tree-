@@ -10,6 +10,7 @@ from FeatureExtractor.FeatureExtractorGeneralToolBox import extract_all_neibours
 from Reinforcement_env.env_utils import PhyloGameUtils
 from SPR_generator.SPR_move import get_moves_from_obj, generate_base_neighbour, generate_tree_object, Edge
 
+import subprocess
 
 class PhyloGame:
 
@@ -20,7 +21,8 @@ class PhyloGame:
 		one PhyloGame instance is to be created per training session
 		"""
 		self.horizon = None
-		self.tree = None
+		self._tree = None
+		self.target = None
 		self.likelihood = None
 		self.all_actions = None
 		self.split_hash_dict = {}
@@ -31,6 +33,14 @@ class PhyloGame:
 		self.is_train = is_train
 		self.reset()
 
+	@property
+	def tree(self):
+		return self._tree
+	@tree.setter
+	def tree(self, somethingelse):
+		# print(f"Changed to {type(somethingelse)}")
+		self._tree = somethingelse
+
 	@staticmethod
 	def get_state_action_size():
 		return len(SC.FEATURE_LIST)
@@ -40,13 +50,15 @@ class PhyloGame:
 		reset the environment: choose new random data set to start from,
 		reset the horizon count
 		"""
+		print("resetting the environment")
 		# tree is a tree object from SPR_generator
 		if dataset:
-			self.tree = self.helper.get_starting_tree(dataset)
+			self.tree, self.target = self.helper.get_starting_tree(dataset)
 		else:
-			self.tree = self.helper.get_starting_tree()
+			self.tree, self.target = self.helper.get_starting_tree()
 
-		self.likelihood = self.fe.extract_likelihood(self.tree, self.helper.data_set)['resulting_ll'][0]
+
+		self.likelihood = self.fe.extract_likelihood(self.tree, self.target, self.helper.data_set)['resulting_ll']
 		self.horizon = self.helper.get_horizon(tree_obj=self.tree)
 		if self.split_hash_dict.get(self.helper.data_set) is None:
 			split_hash_dicts = {}
@@ -59,7 +71,7 @@ class PhyloGame:
 			with open(str(splits_btsrap_hash_file_path / "SplitsHash_nj.pkl"), 'rb') as fp:
 				split_hash_dicts['nj'] = pickle.load(fp)
 			self.split_hash_dict[self.helper.data_set] = split_hash_dicts
-		return self.tree
+		return self.tree, self.target
 
 	def get_all_possible_actions(self):
 		self.all_actions = get_moves_from_obj(self.tree)
@@ -72,15 +84,17 @@ class PhyloGame:
 		(the agent only knows what features are, not actions)
 		"""
 		# we need to save all actions to mem so we can take the correct action on step()
+		print("getting all neighbour states. Each action represents a move to a different tree, of which each row of the tensor is the feature list of that tree.\n")
 		self.all_actions = get_moves_from_obj(self.tree)
 		feature_lst = extract_all_neibours_features_multiprocessing(current_tree_obj=self.tree,
+																	target_tree_obj=self.target,
 																	tool_box_instance=self.fe,
 																	all_moves=self.all_actions,
 																	data_set_num=self.helper.data_set,
 																	number_of_cpus=self.number_of_cpus,
 																	calculation_flag='features',
 																	result_format='vector',
-																	normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()),
+																	# normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()),
 																	split_hash_dict=self.split_hash_dict.get(self.helper.data_set))
 		assert len(self.all_actions) == len(feature_lst)  # assert multiprocessing really returns all results every time
 
@@ -94,6 +108,7 @@ class PhyloGame:
 		"""
 		# we need to save all actions to mem so we can take the correct action on step()
 		self.all_actions = get_moves_from_obj(self.tree)
+		print("all features (actions) for the agent at this step:", self.all_actions)
 		random_index = random.randint(0, len(self.all_actions) - 1)
 		action = [self.all_actions[random_index]]
 		feature_lst = extract_all_neibours_features_multiprocessing(current_tree_obj=self.tree,
@@ -103,7 +118,7 @@ class PhyloGame:
 																	number_of_cpus=self.number_of_cpus,
 																	calculation_flag='features',
 																	result_format='vector',
-																	normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()),
+																	# normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()),
 																	split_hash_dict=self.split_hash_dict.get(self.helper.data_set))
 
 		return self.helper.transform(feature_lst), random_index
@@ -118,20 +133,23 @@ class PhyloGame:
 		the agent will receive a list of features and return the chosen features (index)
 		according to its policy
 		"""
+		print("make a step in the environment")
 		action = self.get_action(state_action_features_index)
 		self.tree = generate_base_neighbour(self.tree, action)
 		if should_calculate_reward:
 			res = self.fe.extract_likelihood(
-				self.tree, self.helper.data_set, previous_ll=self.likelihood,
-				normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()))
-			self.likelihood = res['resulting_ll'][0]
-			if res['resulting_ll'][1] is not None:  # this means: SHOULD_OPTIMIZE_BRANCH_LENGTHS = False
-				self.tree = res['resulting_ll'][1]
+				self.tree, self.target, self.helper.data_set, previous_ll=self.likelihood,
+				# normalization_factor=self.helper.get_normalization_factor_per_ds(data_set=self.get_data_set()))
+			)
+			self.likelihood = res['resulting_ll']
+			# if res['resulting_ll'] is not None:  # this means: SHOULD_OPTIMIZE_BRANCH_LENGTHS = False
+			# 	self.tree = res['resulting_ll']
 			reward = res[SC.TARGET_LABEL_COLUMN]
 		else:
 			reward = 0
 		done = self.step_horizon()
-
+		print("the reward for this step was:", reward)
+		print("the horizon for this step is:", self.horizon)
 		return reward, done
 
 	def step_horizon(self):
@@ -194,6 +212,23 @@ class PhyloGame:
 		os.remove(start_tree_path)
 		os.remove(resulting_tree_path)
 		return result['current_ll'][0]
+	
+	def get_uspr_spr_dist_specific_starting_tree(self, tree_object, target):
+		uspr_path = SC.USPR_SCRIPT
+
+		subprocess.call("touch input.in", shell=True)
+		subprocess.call(f"echo '{tree_object.write(format=4)}' > input.in", shell=True)
+		subprocess.call(f"echo '{target.write(format=4)}' >> input.in", shell=True)
+
+		subprocess.call("touch uspr_dists.out", shell=True)
+		subprocess.call(SC.USPR_SCRIPT + " --uspr < input.in > uspr_dists.out", shell=True)
+		uspr_dist = subprocess.check_output("cat uspr_dists.out", shell=True)
+		uspr_dist = int(uspr_dist.decode('UTF-8').split('\n')[3].split(' ')[2])
+
+		subprocess.call("rm input.in", shell=True)
+		subprocess.call("rm uspr_dists.out", shell=True)
+
+		return uspr_dist
 
 	def get_NJ_likelihood(self, data_set):
 		NJ_tree_path = SC.PATH_TO_RAW_TREE_DATA / data_set / SC.NJ_STARTING_TREE_FILE_NAME
