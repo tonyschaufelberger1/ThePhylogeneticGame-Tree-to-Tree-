@@ -177,7 +177,7 @@ class DqnAgent:
         return all_episode_reward, all_episode_q_values, loss
 
     # def test(self, result_dir, episode, num_of_tests=20, final_test=False):
-    def test(self, result_dir, episode, num_of_tests=2, final_test=False):
+    def test(self, result_dir, episode, num_of_tests=5, final_test=False):
         print("run test method in dqn_agent \n")
 
         # track on which episodes were testing on
