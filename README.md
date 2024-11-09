@@ -20,7 +20,7 @@ There are the relevant parameters: <br />
 
 All parameters for experiment configuration are in SharedConsts.py with appropriate documentation.
 
-# Additional dependencies:
+## Additional dependencies:
 -- uSPR by Chris Whidden (https://github.com/cwhidden/uspr)
 -- Rscript, and the TreeDist, Quartet, ape, and Phangorn packages
 
