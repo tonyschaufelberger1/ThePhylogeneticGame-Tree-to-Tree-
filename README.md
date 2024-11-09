@@ -21,7 +21,7 @@ There are the relevant parameters: <br />
 All parameters for experiment configuration are in SharedConsts.py with appropriate documentation.
 
 ## Additional dependencies:
--- uSPR by Chris Whidden (https://github.com/cwhidden/uspr)
--- Rscript, and the TreeDist, Quartet, ape, and Phangorn packages
+-- uSPR by Chris Whidden (https://github.com/cwhidden/uspr)  <br />
+-- Rscript, and the TreeDist, Quartet, ape, and Phangorn packages  <br />
 
 Additionally, datasets were used from https://github.com/skelk2001/kernelizing-agreement-forests/
